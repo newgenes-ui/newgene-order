@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>뉴진사이언스 - 스마트 간편 발주</title>
+    <style>
+        :root {
+            --primary: #0ea5e9;
+            --primary-dark: #0284c7;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+        }
+        body {
+            font-family: 'Pretendard', -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 480px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .header h1 {
+            color: #1a2a40;
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        .welcome-badge {
+            display: inline-block;
+            background: #e0f2fe;
+            color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .card {
+            background: var(--card);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #475569;
+        }
+        input[type="text"], input[type="tel"], input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 15px;
+        }
+        /* 제품 리스트 스타일 */
+        .product-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .product-info {
+            flex: 1;
+        }
+        .product-name {
+            font-weight: 600;
+            font-size: 15px;
+            display: block;
+        }
+        .product-spec {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+        .qty-control {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #f1f5f9;
+            padding: 4px 8px;
+            border-radius: 8px;
+        }
+        .qty-btn {
+            width: 28px;
+            height: 28px;
+            border: none;
+            border-radius: 4px;
+            background: white;
+            color: var(--primary);
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .qty-display {
+            font-weight: 700;
+            min-width: 20px;
+            text-align: center;
+        }
+        .total-section {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 2px dashed var(--border);
+            text-align: right;
+        }
+        .total-label {
+            font-size: 14px;
+            color: var(--text-light);
+        }
+        .total-amount {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .submit-btn:disabled {
+            background: #94a3b8;
+        }
+        .chat-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            margin-top: 12px;
+            padding: 12px;
+            background: #fee500;
+            color: #3c1e1e;
+            border: none;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 15px;
+        }
+        /* 로딩 모달 */
+        #loadingModal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            color: white;
+            flex-direction: column;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>New Gene Science</h1>
+        <div id="welcomeBadge" class="welcome-badge">반갑습니다! 연구원님</div>
+    </div>
+
+    <form id="orderForm">
+        <div class="card">
+            <h2>🏢 주문처 정보</h2>
+            <div class="form-group">
+                <label>연구실/기관명</label>
+                <input type="text" id="labName" placeholder="예: A대학교 OOO연구실" required>
+            </div>
+            <div class="form-group">
+                <label>주문자 성함</label>
+                <input type="text" id="userName" placeholder="성함을 입력하세요" required>
+            </div>
+            <div class="form-group">
+                <label>연락처</label>
+                <input type="tel" id="userPhone" placeholder="예: 010-1234-5678" required>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📦 주력 제품 발주</h2>
+            <!-- 제품 1 -->
+            <div class="product-item">
+                <div class="product-info">
+                    <span class="product-name">ExTransfection 소모품 A</span>
+                    <span class="product-spec">50회분 / pk (550,000원)</span>
+                </div>
+                <div class="qty-control">
+                    <button type="button" class="qty-btn" onclick="updateQty('qtyA', -1)">-</button>
+                    <span class="qty-display" id="qtyA">0</span>
+                    <button type="button" class="qty-btn" onclick="updateQty('qtyA', 1)">+</button>
+                </div>
+            </div>
+            <!-- 제품 2 -->
+            <div class="product-item">
+                <div class="product-info">
+                    <span class="product-name">뉴진스 전용 시약 B</span>
+                    <span class="product-spec">100ml / bottle (320,000원)</span>
+                </div>
+                <div class="qty-control">
+                    <button type="button" class="qty-btn" onclick="updateQty('qtyB', -1)">-</button>
+                    <span class="qty-display" id="qtyB">0</span>
+                    <button type="button" class="qty-btn" onclick="updateQty('qtyB', 1)">+</button>
+                </div>
+            </div>
+            <!-- 제품 3 -->
+            <div class="product-item">
+                <div class="product-info">
+                    <span class="product-name">고성능 필터 키트 C</span>
+                    <span class="product-spec">10개입 / box (180,000원)</span>
+                </div>
+                <div class="qty-control">
+                    <button type="button" class="qty-btn" onclick="updateQty('qtyC', -1)">-</button>
+                    <span class="qty-display" id="qtyC">0</span>
+                    <button type="button" class="qty-btn" onclick="updateQty('qtyC', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="total-section">
+                <span class="total-label">총 발주 예상 금액</span><br>
+                <span class="total-amount" id="totalDisplay">0</span> 원
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🔍 기타 제품 견적 문의</h2>
+            <div class="form-group">
+                <label>제품명 및 사양</label>
+                <input type="text" id="otherName" placeholder="뉴진스 외 필요한 제품 입력">
+            </div>
+            <div class="form-group">
+                <label>수량</label>
+                <input type="number" id="otherQty" placeholder="0" min="0">
+            </div>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">발주서 생성 및 전송하기</button>
+        <a href="https://open.kakao.com/o/대표님카톡링크" class="chat-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3c-4.97 0-9 3.134-9 7 0 2.408 1.576 4.545 4 5.828l-.8 2.6c-.1.3.2.6.5.4l3.1-1.8c.7.2 1.4.3 2.2.3 4.97 0 9-3.134 9-7s-4.03-7-9-7z"/></svg>
+            실시간 상담 및 일정 확인
+        </a>
+    </form>
+</div>
+
+<div id="loadingModal">
+    <div style="font-size: 40px; margin-bottom: 10px;">📄</div>
+    <div>발주서를 생성하고 있습니다...</div>
+</div>
+
+<script>
+    const PRICES = { qtyA: 550000, qtyB: 320000, qtyC: 180000 };
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby2VTQXY6niWG4_agJULS6NUUGQIjlwXxhzld9LfwMo_22evJbjwrDtE697Oze5iV1rog/exec";
+
+    // 1. URL 파라미터에서 연구실명 가져오기 (예: ?lab=서울대 박연구실)
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const lab = urlParams.get('lab');
+        if (lab) {
+            document.getElementById('labName').value = lab;
+            document.getElementById('welcomeBadge').innerText = `${lab}님 반갑습니다!`;
+        }
+    }
+
+    function updateQty(id, delta) {
+        const el = document.getElementById(id);
+        let val = parseInt(el.innerText) + delta;
+        if (val >= 0) {
+            el.innerText = val;
+            calculateTotal();
+        }
+    }
+
+    function calculateTotal() {
+        let total = 0;
+        total += parseInt(document.getElementById('qtyA').innerText) * PRICES.qtyA;
+        total += parseInt(document.getElementById('qtyB').innerText) * PRICES.qtyB;
+        total += parseInt(document.getElementById('qtyC').innerText) * PRICES.qtyC;
+        document.getElementById('totalDisplay').innerText = total.toLocaleString();
+    }
+
+    document.getElementById('orderForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const qtyA = parseInt(document.getElementById('qtyA').innerText);
+        const qtyB = parseInt(document.getElementById('qtyB').innerText);
+        const qtyC = parseInt(document.getElementById('qtyC').innerText);
+        const otherName = document.getElementById('otherName').value;
+
+        if (qtyA === 0 && qtyB === 0 && qtyC === 0 && !otherName) {
+            alert("최소 하나 이상의 제품을 선택하거나 문의 내용을 입력해주세요.");
+            return;
+        }
+
+        const modal = document.getElementById('loadingModal');
+        const btn = document.getElementById('submitBtn');
+        modal.style.display = 'flex';
+        btn.disabled = true;
+
+        const orderData = {
+            orderNum: "NJ-" + Date.now().toString().slice(-6),
+            orderDate: new Date().toLocaleDateString(),
+            labName: document.getElementById('labName').value,
+            userName: document.getElementById('userName').value,
+            userPhone: document.getElementById('userPhone').value,
+            qtyA: qtyA,
+            qtyB: qtyB,
+            qtyC: qtyC,
+            otherName: otherName || "없음",
+            otherQty: document.getElementById('otherQty').value || "-",
+            totalPrice: document.getElementById('totalDisplay').innerText
+        };
+
+        try {
+            await fetch(SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors", // 중요: CORS 에러 방지
+                headers: { "Content-Type": "text/plain" },
+                body: JSON.stringify(orderData)
+            });
+
+            modal.style.display = 'none';
+            alert("발주서가 성공적으로 전송되었습니다!\n대표님 메일로 PDF가 전달되었으며, 지금 바로 상담을 연결합니다.");
+            window.location.href = "https://open.kakao.com/o/대표님카톡링크"; 
+            
+        } catch (error) {
+            modal.style.display = 'none';
+            btn.disabled = false;
+            alert("전송 중 오류가 발생했습니다. 다시 시도해주세요.");
+        }
+    });
+</script>
+
+</body>
+</html>
